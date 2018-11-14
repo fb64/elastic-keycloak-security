@@ -1,0 +1,1 @@
+# elastic-keycloak-plugin
