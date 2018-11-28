@@ -1,1 +1,1 @@
-# elastic-keycloak-plugin
+# elastic-keycloak-security
