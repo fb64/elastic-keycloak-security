@@ -7,13 +7,11 @@ services:
   - docker
 
 before_install:
-  - sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
-  - sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  - docker pull jboss/keycloak:4.5.0.Final
+  - docker run -d -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e KEYCLOAK_IMPORT=/tmp/elastic-realm-export.json -v "${TRAVIS_BUILD_DIR}"/src/test/resources/config/elastic-realm-export.json:/tmp/elastic-realm-export.json -p 8080:8080 jboss/keycloak
 
 install:
-  - docker pull jboss/keycloak:4.5.0.Final
   - ./gradlew assemble
 
 script:
-  - docker run -d -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e KEYCLOAK_IMPORT=/tmp/elastic-realm-export.json -v "${TRAVIS_BUILD_DIR}"/src/test/resources/config/elastic-realm-export.json:/tmp/elastic-realm-export.json -p 8080:8080 jboss/keycloak
   - ./gradlew check
