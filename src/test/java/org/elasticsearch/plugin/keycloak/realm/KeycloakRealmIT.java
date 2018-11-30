@@ -15,14 +15,6 @@
 
 package org.elasticsearch.plugin.keycloak.realm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -30,46 +22,34 @@ import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
+import org.elasticsearch.plugin.keycloak.KeycloakUtils;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.xpack.core.XPackClientPlugin;
 import org.elasticsearch.xpack.core.security.authc.support.UsernamePasswordToken;
-import org.keycloak.representations.AccessTokenResponse;
+import org.junit.BeforeClass;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 
 public class KeycloakRealmIT extends ESIntegTestCase {
 
-    private String getToken(){
-        HttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8080/auth/realms/elastic/protocol/openid-connect/token");
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("grant_type", "password"));
-        params.add(new BasicNameValuePair("username", "plugin-test-user"));
-        params.add(new BasicNameValuePair("password", "password"));
-        params.add(new BasicNameValuePair("client_secret", "7081cf27-196c-408d-b362-858a1d000b2b"));
-        params.add(new BasicNameValuePair("client_id", "elastic-plugin-test"));
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
-            HttpResponse response = client.execute(httpPost);
-            ObjectMapper objectMapper = new ObjectMapper();
-            AccessTokenResponse tokenResponse = objectMapper.readValue(response.getEntity().getContent(),AccessTokenResponse.class);
-            return tokenResponse.getToken();
-        }catch (Exception e){
-            return null;
-        }
-    }
+    private static final String TEST_USER="plugin-test-user";
+    private static final String TEST_PASSWORD="password";
 
+    @BeforeClass
+    public static void initTestUser() throws IOException {
+        KeycloakUtils.addUser(TEST_USER,TEST_PASSWORD);
+    }
 
     @Override
     protected Settings externalClusterClientSettings() {
+        String userToken = KeycloakUtils.getKeycloakUserToken(TEST_USER,TEST_PASSWORD);
         return Settings.builder()
-                .put(ThreadContext.PREFIX + "." + UsernamePasswordToken.BASIC_AUTH_HEADER,"Bearer "+getToken())
+                .put(ThreadContext.PREFIX + "." + UsernamePasswordToken.BASIC_AUTH_HEADER,"Bearer "+userToken)
                 .put(NetworkModule.TRANSPORT_TYPE_KEY, "security4")
                 .build();
     }
@@ -92,10 +72,10 @@ public class KeycloakRealmIT extends ESIntegTestCase {
 
     public void testValidToken() {
         try {
+            String userToken = KeycloakUtils.getKeycloakUserToken(TEST_USER,TEST_PASSWORD);
             Request request = new Request("GET", "/");
-
             RequestOptions.Builder optionsBuilder = request.getOptions().toBuilder();
-            optionsBuilder.addHeader("Authorization","Bearer "+getToken());
+            optionsBuilder.addHeader("Authorization","Bearer "+userToken);
             request.setOptions(optionsBuilder)
             ;
             Response response = getRestClient().performRequest(request);
