@@ -8,7 +8,7 @@ services:
 
 before_install:
   - docker pull jboss/keycloak:4.5.0.Final
-  - docker run -d -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e KEYCLOAK_IMPORT=/tmp/elastic-realm-export.json -v "$(TRAVIS_BUILD_DIR)"/src/test/resources/config/elastic-realm-export.json:/tmp/elastic-realm-export.json jboss/keycloak:4.5.0.Final
+  - docker run -d -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e KEYCLOAK_IMPORT=/tmp/elastic-realm-export.json -v "$(TRAVIS_BUILD_DIR)"/src/test/resources/config/elastic-realm-export.json:/tmp/elastic-realm-export.json -p 8080:8080 jboss/keycloak
 
 install:
   - ./gradlew assemble
