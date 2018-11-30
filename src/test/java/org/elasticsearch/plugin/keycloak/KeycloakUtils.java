@@ -36,7 +36,7 @@ import java.util.List;
 public class KeycloakUtils {
 
     private static HttpClient httpClient = HttpClients.createDefault();
-    private static final String KEYCLOAK_BASE_URL="http://127.0.0.1:8080";
+    private static final String KEYCLOAK_BASE_URL="http://localhost:8080";
 
     public static void addUser(String username,String password) throws IOException {
         String adminToken = getKeycloakAdminToken("admin","admin");
