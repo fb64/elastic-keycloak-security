@@ -36,10 +36,11 @@ import java.util.List;
 public class KeycloakUtils {
 
     private static HttpClient httpClient = HttpClients.createDefault();
+    private static final String KEYCLOAK_BASE_URL="http://localhost:8080";
 
     public static void addUser(String username,String password) throws IOException {
         String adminToken = getKeycloakAdminToken("admin","admin");
-        HttpPost httpPost = new HttpPost("http://localhost:8080/auth/admin/realms/elastic/users");
+        HttpPost httpPost = new HttpPost(KEYCLOAK_BASE_URL.concat("/auth/admin/realms/elastic/users"));
         httpPost.setHeader(HttpHeaders.AUTHORIZATION,"Bearer "+adminToken);
 
         StringBuilder request = new StringBuilder();
@@ -57,7 +58,7 @@ public class KeycloakUtils {
 
 
     private static String getKeycloakAdminToken(String username,String password){
-        HttpPost httpPost = new HttpPost("http://localhost:8080/auth/realms/master/protocol/openid-connect/token");
+        HttpPost httpPost = new HttpPost(KEYCLOAK_BASE_URL.concat("/auth/realms/master/protocol/openid-connect/token"));
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("grant_type", "password"));
         params.add(new BasicNameValuePair("username", username));
@@ -75,7 +76,7 @@ public class KeycloakUtils {
     }
 
     public static String getKeycloakUserToken(String username,String password){
-        HttpPost httpPost = new HttpPost("http://localhost:8080/auth/realms/elastic/protocol/openid-connect/token");
+        HttpPost httpPost = new HttpPost(KEYCLOAK_BASE_URL.concat("/auth/realms/elastic/protocol/openid-connect/token"));
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("grant_type", "password"));
         params.add(new BasicNameValuePair("username", username));
