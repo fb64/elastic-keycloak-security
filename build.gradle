@@ -22,7 +22,6 @@ apply plugin: 'elasticsearch.esplugin'
 group 'org.elasticsearch.plugin'
 version "${pluginVersion}_es${esVersion}"
 
-sourceCompatibility = 1.8
 
 ext{
     project.licenseFile = project.rootProject.file('LICENSE')
@@ -54,17 +53,17 @@ configurations.all {
 }
 
 dependencies {
-    compile 'org.keycloak:keycloak-common:4.5.0.Final'
-    compile 'org.keycloak:keycloak-core:4.5.0.Final'
-    compile 'org.keycloak:keycloak-authz-client:4.5.0.Final'
-    compile 'org.keycloak:keycloak-adapter-spi:4.5.0.Final'
-    compile 'org.keycloak:keycloak-adapter-core:4.5.0.Final'
+    compile "org.keycloak:keycloak-common:$keycloakVersion"
+    compile "org.keycloak:keycloak-core:$keycloakVersion"
+    compile "org.keycloak:keycloak-authz-client:$keycloakVersion"
+    compile "org.keycloak:keycloak-adapter-spi:$keycloakVersion"
+    compile "org.keycloak:keycloak-adapter-core:$keycloakVersion"
     compile 'org.bouncycastle:bcprov-jdk15on:1.60'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.60'
 
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.10'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.10'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.10'
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
 
     compile group: 'org.jboss.logging', name: 'jboss-logging', version: '3.3.2.Final'
     compile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '1.5.2.Final'
@@ -76,9 +75,9 @@ dependencies {
     compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
 
 
-    compileOnly ('org.elasticsearch.plugin:x-pack-core:6.4.3')
+    compileOnly "org.elasticsearch.plugin:x-pack-core:$esVersion"
 
-    testCompile ('org.elasticsearch.client:x-pack-transport:6.4.3')
+    testCompile "org.elasticsearch.client:x-pack-transport:$esVersion"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
