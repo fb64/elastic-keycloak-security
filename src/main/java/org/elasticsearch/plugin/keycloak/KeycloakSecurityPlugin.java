@@ -18,14 +18,14 @@ package org.elasticsearch.plugin.keycloak;
 import org.elasticsearch.plugin.keycloak.realm.BearerToken;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.rest.RestHeaderDefinition;
 
 import java.util.Collection;
 import java.util.Collections;
 
 public class KeycloakSecurityPlugin extends Plugin implements ActionPlugin {
-
     @Override
-    public Collection<String> getRestHeaders() {
-        return Collections.singletonList(BearerToken.BEARER_AUTH_HEADER);
+    public Collection<RestHeaderDefinition> getRestHeaders() {
+        return Collections.singletonList(new RestHeaderDefinition(BearerToken.BEARER_AUTH_HEADER, false));
     }
 }

@@ -45,7 +45,7 @@ public class KeycloakRealm extends Realm {
     private final KeycloakDeployment keycloakDeployment;
 
     public KeycloakRealm(RealmConfig config) {
-        super(REALM_TYPE, config);
+        super(config);  //NOTE: removed REALM_TYPE from constructor
 
         String pathString = config.settings().get(CONFIG_KEY);
         Path configPath = getConfigPath(pathString);
@@ -83,7 +83,7 @@ public class KeycloakRealm extends Realm {
     @Override
     public void authenticate(AuthenticationToken authenticationToken, ActionListener<AuthenticationResult> actionListener) {
 
-        logger.debug("Attempt to authenticate : "+authenticationToken.credentials().toString());
+        logger.debug("Attempt to authenticate : %s", authenticationToken.credentials().toString());
         AccessToken accessToken = AccessController.doPrivileged(
                 (PrivilegedAction<AccessToken>) () -> {
                     try {

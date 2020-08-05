@@ -3,7 +3,7 @@ buildscript {
         pluginVersion = rootProject.properties['pluginVersion']
         esVersion = rootProject.properties['esVersion']
         keycloakVersion = '4.5.0.Final'
-        jacksonVersion = '2.8.10'
+        jacksonVersion = '2.8.11'
     }
 
     repositories {
@@ -29,9 +29,6 @@ ext{
 }
 
 dependencyLicenses.enabled = false
-
-thirdPartyAudit.excludes = ['org/jboss/modules/ConcurrentClassLoader',
-                            'org/jboss/modules/ConcurrentClassLoader$UnsafeHolder']
 
 esplugin {
     name 'keycloak-security'
@@ -85,7 +82,7 @@ dependencies {
 integTestRunner {
     systemProperty 'tests.security.manager', 'false'
 }
-
+/*
 integTestCluster {
     dependsOn buildZip
 
@@ -124,4 +121,4 @@ integTestCluster {
     }
 }
 
-check.dependsOn integTest
+check.dependsOn integTest */

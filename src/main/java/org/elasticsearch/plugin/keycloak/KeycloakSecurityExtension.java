@@ -16,7 +16,6 @@
 package org.elasticsearch.plugin.keycloak;
 
 import org.elasticsearch.plugin.keycloak.realm.KeycloakRealm;
-import org.elasticsearch.watcher.ResourceWatcherService;
 import org.elasticsearch.xpack.core.security.SecurityExtension;
 import org.elasticsearch.xpack.core.security.authc.Realm;
 
@@ -39,7 +38,7 @@ public class KeycloakSecurityExtension implements SecurityExtension {
     }
 
     @Override
-    public Map<String, Realm.Factory> getRealms(ResourceWatcherService resourceWatcherService) {
+    public Map<String, Realm.Factory> getRealms(SecurityComponents components) {
         return Collections.singletonMap(KeycloakRealm.REALM_TYPE, KeycloakRealm::new);
     }
 }

@@ -18,10 +18,10 @@ package org.elasticsearch.plugin.keycloak.realm;
 import org.elasticsearch.common.settings.SecureString;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.xpack.core.security.authc.AuthenticationToken;
-import org.elasticsearch.xpack.core.security.authc.support.CharArrays;
 import org.elasticsearch.xpack.core.security.support.Exceptions;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class BearerToken implements AuthenticationToken {
     public static final String BEARER_AUTH_PREFIX = "Bearer ";
@@ -61,8 +61,8 @@ public class BearerToken implements AuthenticationToken {
             throw Exceptions.authenticationError("invalid Bearer authentication header value");
         } else {
             String tokenValue = headerValue.substring(BEARER_AUTH_PREFIX.length()).trim();
-            char[] accessToken = CharArrays.utf8BytesToChars(tokenValue.getBytes(Charset.defaultCharset()));
-            return new BearerToken(new SecureString(accessToken));
+            String tokenValueString = new String(tokenValue.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
+            return new BearerToken(new SecureString(tokenValueString.toCharArray()));
         }
     }
 }
