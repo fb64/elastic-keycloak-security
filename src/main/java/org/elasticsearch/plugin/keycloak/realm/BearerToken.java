@@ -15,6 +15,8 @@
 
 package org.elasticsearch.plugin.keycloak.realm;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.SecureString;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.xpack.core.security.authc.AuthenticationToken;
@@ -24,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class BearerToken implements AuthenticationToken {
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     public static final String BEARER_AUTH_PREFIX = "Bearer ";
     public static final String BEARER_AUTH_HEADER = "Authorization";
 

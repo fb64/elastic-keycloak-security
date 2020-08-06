@@ -16,12 +16,10 @@
 package org.elasticsearch.plugin.keycloak.realm;
 
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.plugin.keycloak.exception.KeycloakConfigException;
-import org.elasticsearch.xpack.core.security.authc.AuthenticationResult;
-import org.elasticsearch.xpack.core.security.authc.AuthenticationToken;
-import org.elasticsearch.xpack.core.security.authc.Realm;
-import org.elasticsearch.xpack.core.security.authc.RealmConfig;
+import org.elasticsearch.xpack.core.security.authc.*;
 import org.elasticsearch.xpack.core.security.user.User;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.KeycloakDeploymentBuilder;
@@ -39,6 +37,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 
+import static org.elasticsearch.plugin.keycloak.realm.BearerToken.BEARER_AUTH_HEADER;
+
 public class KeycloakRealm extends Realm {
     public static final String REALM_TYPE = "keycloak";
     public static final String CONFIG_KEY = "config";
@@ -46,16 +46,15 @@ public class KeycloakRealm extends Realm {
 
     public KeycloakRealm(RealmConfig config) {
         super(config);  //NOTE: removed REALM_TYPE from constructor
-
-        String pathString = config.settings().get(CONFIG_KEY);
+        String pathString = config.getSetting(RealmSettings.simpleString(KeycloakRealm.REALM_TYPE, "config", Setting.Property.NodeScope, Setting.Property.Filtered));
         Path configPath = getConfigPath(pathString);
-
         try(FileChannel channel =FileChannel.open(configPath, StandardOpenOption.READ)) {
             keycloakDeployment = AccessController.doPrivileged(
                     (PrivilegedAction<KeycloakDeployment>) () ->  KeycloakDeploymentBuilder.build(Channels.newInputStream(channel)));
         }  catch (IOException e) {
             throw new KeycloakConfigException("Unable to load keycloak config file : "+pathString,e);
         }
+        logger.info("Loaded keycloak config file");
     }
 
 
@@ -72,18 +71,21 @@ public class KeycloakRealm extends Realm {
 
     @Override
     public boolean supports(AuthenticationToken authenticationToken) {
+        logger.info("Checking support");
         return authenticationToken instanceof BearerToken;
     }
 
     @Override
     public AuthenticationToken token(ThreadContext threadContext) {
+        logger.info("AuthenticationToken");
+        logger.info(threadContext.getHeader(BEARER_AUTH_HEADER));
         return BearerToken.extractToken(threadContext);
     }
 
     @Override
     public void authenticate(AuthenticationToken authenticationToken, ActionListener<AuthenticationResult> actionListener) {
-
-        logger.debug("Attempt to authenticate : %s", authenticationToken.credentials().toString());
+        logger.info("Attempting authentication");
+        logger.info("Attempt to authenticate : " + authenticationToken.credentials().toString());
         AccessToken accessToken = AccessController.doPrivileged(
                 (PrivilegedAction<AccessToken>) () -> {
                     try {
@@ -99,7 +101,8 @@ public class KeycloakRealm extends Realm {
             User user = new User(accessToken.getPreferredUsername(),roles.toArray(new String[0]));
             actionListener.onResponse(AuthenticationResult.success(user));
         }else{
-            actionListener.onFailure(new NullPointerException("Token: "+authenticationToken.credentials()));
+            logger.info("Access token " + authenticationToken.credentials());
+            actionListener.onFailure(new NullPointerException("Token: " + authenticationToken.credentials()));
         }
     }
 
@@ -107,4 +110,5 @@ public class KeycloakRealm extends Realm {
     public void lookupUser(String s, ActionListener<User> actionListener) {
         actionListener.onResponse(null);
     }
+
 }

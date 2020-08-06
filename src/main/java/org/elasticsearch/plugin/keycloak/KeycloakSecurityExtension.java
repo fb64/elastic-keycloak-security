@@ -15,6 +15,8 @@
 
 package org.elasticsearch.plugin.keycloak;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.plugin.keycloak.realm.KeycloakRealm;
 import org.elasticsearch.xpack.core.security.SecurityExtension;
 import org.elasticsearch.xpack.core.security.authc.Realm;
@@ -27,7 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 
 public class KeycloakSecurityExtension implements SecurityExtension {
-
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     static {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             System.getSecurityManager().checkPermission(new ReflectPermission("suppressAccessChecks"));
@@ -37,8 +39,9 @@ public class KeycloakSecurityExtension implements SecurityExtension {
         });
     }
 
-    @Override
+   @Override
     public Map<String, Realm.Factory> getRealms(SecurityComponents components) {
+        logger.info("Get realms for keycloak security extension");
         return Collections.singletonMap(KeycloakRealm.REALM_TYPE, KeycloakRealm::new);
     }
 }
