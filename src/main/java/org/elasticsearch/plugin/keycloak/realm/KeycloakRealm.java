@@ -79,7 +79,15 @@ public class KeycloakRealm extends Realm {
     public AuthenticationToken token(ThreadContext threadContext) {
         logger.info("AuthenticationToken");
         logger.info(threadContext.getHeader(BEARER_AUTH_HEADER));
+
         return BearerToken.extractToken(threadContext);
+    }
+
+    //For testing
+    @Override
+    public int compareTo(Realm other) {
+        logger.info("Compare to");
+        return super.compareTo(other);
     }
 
     @Override

@@ -17,9 +17,11 @@ package org.elasticsearch.plugin.keycloak;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.keycloak.realm.KeycloakRealm;
 import org.elasticsearch.xpack.core.security.SecurityExtension;
 import org.elasticsearch.xpack.core.security.authc.Realm;
+import org.elasticsearch.xpack.core.security.authz.AuthorizationEngine;
 
 import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
