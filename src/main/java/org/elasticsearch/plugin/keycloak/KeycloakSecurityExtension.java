@@ -41,6 +41,8 @@ public class KeycloakSecurityExtension implements SecurityExtension {
         });
     }
 
+
+
    @Override
     public Map<String, Realm.Factory> getRealms(SecurityComponents components) {
         logger.info("Get realms for keycloak security extension");

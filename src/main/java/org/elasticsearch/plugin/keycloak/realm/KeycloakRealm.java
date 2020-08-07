@@ -80,7 +80,7 @@ public class KeycloakRealm extends Realm {
         logger.info("AuthenticationToken");
         logger.info(threadContext.getHeader(BEARER_AUTH_HEADER));
 
-        return BearerToken.extractToken(threadContext);
+        return BearerToken.extractToken(threadContext, keycloakDeployment);
     }
 
     //For testing

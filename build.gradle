@@ -2,7 +2,7 @@ buildscript {
     ext {
         pluginVersion = rootProject.properties['pluginVersion']
         esVersion = rootProject.properties['esVersion']
-        keycloakVersion = '4.5.0.Final'
+        keycloakVersion = '9.0.2'
         jacksonVersion = '2.8.11'
     }
 
