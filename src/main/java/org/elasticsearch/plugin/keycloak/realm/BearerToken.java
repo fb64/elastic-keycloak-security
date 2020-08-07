@@ -38,21 +38,30 @@ public class BearerToken implements AuthenticationToken {
 
     private final SecureString accessToken;
     private final String principal;
+    private final AccessToken keycloakAccessToken;
 
     public BearerToken(SecureString accessToken, KeycloakDeployment keycloakDeployment){
         this.accessToken = accessToken;
-        AccessToken keycloakToken = AccessController.doPrivileged(
-                (PrivilegedAction<AccessToken>) () -> {
-                    try {
-                        return AdapterTokenVerifier.verifyToken(accessToken.toString(), keycloakDeployment);
-                    } catch (VerificationException e) {
-                        logger.error("fail to authenticate token",e);
-                        return null;
-                    }
-                });
-        String username = keycloakToken.getPreferredUsername();
-        logger.info("Preferred username: " + username);
-        principal = username == null ? "test" : username;
+        String username = null;
+        AccessToken keycloakToken = null;
+        if(keycloakDeployment != null){
+            keycloakToken = AccessController.doPrivileged(
+                    (PrivilegedAction<AccessToken>) () -> {
+                        try {
+                            return AdapterTokenVerifier.verifyToken(accessToken.toString(), keycloakDeployment);
+                        } catch (VerificationException e) {
+                            logger.error("fail to authenticate token",e);
+                            return null;
+                        }
+                    });
+            username = keycloakToken.getPreferredUsername();
+        }
+        keycloakAccessToken = keycloakToken;
+        principal = username == null ? "" : username;
+    }
+
+    public AccessToken keycloakAccessToken(){
+        return keycloakAccessToken;
     }
 
     @Override
@@ -80,7 +89,7 @@ public class BearerToken implements AuthenticationToken {
         if (!headerValue.startsWith(BEARER_AUTH_PREFIX)) {
             return null;
         } else if (headerValue.length() == BEARER_AUTH_PREFIX.length()) {
-            throw Exceptions.authenticationError("invalid Bearer authentication header value");
+            throw Exceptions.authenticationError("Invalid Bearer authentication header value");
         } else {
             String tokenValue = headerValue.substring(BEARER_AUTH_PREFIX.length()).trim();
             String tokenValueString = new String(tokenValue.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);

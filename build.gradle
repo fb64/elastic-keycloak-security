@@ -22,7 +22,6 @@ apply plugin: 'elasticsearch.esplugin'
 group 'org.elasticsearch.plugin'
 version "${pluginVersion}_es${esVersion}"
 
-
 ext{
     project.licenseFile = project.rootProject.file('LICENSE')
     project.noticeFile = project.rootProject.file('NOTICE')
@@ -67,8 +66,6 @@ dependencies {
     compile group: 'org.jboss.modules', name: 'jboss-modules', version: '1.1.0.GA'
 
     compileOnly group: 'javax.activation', name: 'activation', version: '1.1.1'
-    compileOnly group: 'log4j', name: 'log4j', version: '1.2.16'
-    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
     compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
 
 
