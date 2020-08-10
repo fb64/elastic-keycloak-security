@@ -33,10 +33,8 @@ public class BearerTokenTests extends ESTestCase {
                 .put(ThreadContext.PREFIX + "." + UsernamePasswordToken.BASIC_AUTH_HEADER,"Bearer "+TOKEN_VALUE)
                 .build();
 
-        try(ThreadContext threadContext = new ThreadContext(settings)){
-            SecureString credential = (SecureString)BearerToken.extractToken(threadContext).credentials();
-            Assert.assertEquals(TOKEN_VALUE,credential.toString());
-        }
-
+        ThreadContext threadContext = new ThreadContext(settings);
+        SecureString credential = (SecureString)BearerToken.extractToken(threadContext, null).credentials();
+        Assert.assertEquals(TOKEN_VALUE,credential.toString());
     }
 }
