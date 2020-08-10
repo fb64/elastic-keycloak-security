@@ -1,13 +1,13 @@
 language: java
 
 jdk:
-  - openjdk10
+  - openjdk13
 
 services:
   - docker
 
 before_install:
-  - docker pull jboss/keycloak:4.5.0.Final
+  - docker pull jboss/keycloak:9.0.2
   - docker run -d -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e KEYCLOAK_IMPORT=/tmp/elastic-realm-export.json -v "${TRAVIS_BUILD_DIR}"/src/test/resources/config/elastic-realm-export.json:/tmp/elastic-realm-export.json -p 8080:8080 jboss/keycloak
 
 install:
