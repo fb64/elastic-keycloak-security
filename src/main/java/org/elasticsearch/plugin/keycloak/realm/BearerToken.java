@@ -40,22 +40,8 @@ public class BearerToken implements AuthenticationToken {
     private final String principal;
     private final AccessToken keycloakAccessToken;
 
-    public BearerToken(SecureString accessToken, KeycloakDeployment keycloakDeployment){
+    public BearerToken(SecureString accessToken, String username, AccessToken keycloakToken){
         this.accessToken = accessToken;
-        String username = null;
-        AccessToken keycloakToken = null;
-        if(keycloakDeployment != null){
-            keycloakToken = AccessController.doPrivileged(
-                    (PrivilegedAction<AccessToken>) () -> {
-                        try {
-                            return AdapterTokenVerifier.verifyToken(accessToken.toString(), keycloakDeployment);
-                        } catch (VerificationException e) {
-                            logger.error("fail to authenticate token",e);
-                            return null;
-                        }
-                    });
-            username = keycloakToken.getPreferredUsername();
-        }
         keycloakAccessToken = keycloakToken;
         principal = username == null ? "" : username;
     }
@@ -93,7 +79,20 @@ public class BearerToken implements AuthenticationToken {
         } else {
             String tokenValue = headerValue.substring(BEARER_AUTH_PREFIX.length()).trim();
             String tokenValueString = new String(tokenValue.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
-            return new BearerToken(new SecureString(tokenValueString.toCharArray()), keycloakDeployment);
+            String username = null;
+            AccessToken keycloakToken = null;
+            if(keycloakDeployment != null){
+                keycloakToken = AccessController.doPrivileged(
+                        (PrivilegedAction<AccessToken>) () -> {
+                            try {
+                                return AdapterTokenVerifier.verifyToken(tokenValueString, keycloakDeployment);
+                            } catch (VerificationException e) {
+                                throw Exceptions.authenticationError("Failed to authenticate token");
+                            }
+                        });
+                username = keycloakToken.getPreferredUsername();
+            }
+            return new BearerToken(new SecureString(tokenValueString.toCharArray()), username, keycloakToken);
         }
     }
 }
