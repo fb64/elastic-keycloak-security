@@ -13,9 +13,9 @@ buildscript {
 
     dependencies {
         classpath "org.elasticsearch.gradle:build-tools:$esVersion"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
-
 apply plugin: 'idea'
 apply plugin: 'elasticsearch.esplugin'
 
@@ -25,6 +25,7 @@ version "${pluginVersion}_es${esVersion}"
 ext{
     project.licenseFile = project.rootProject.file('LICENSE')
     project.noticeFile = project.rootProject.file('NOTICE')
+    thirdPartyAudit.enabled = false
 }
 
 dependencyLicenses.enabled = false
@@ -79,6 +80,45 @@ dependencies {
 integTestRunner {
     systemProperty 'tests.security.manager', 'false'
 }
+
+allprojects {
+    apply plugin: "com.jfrog.artifactory"
+}
+
+configurations {
+    published
+}
+
+def distro = file("build/distributions/keycloak-security-${pluginVersion}_es${esVersion}.zip")
+
+artifacts {
+    published file: distro, name: distro.getName(), type: 'zip'
+}
+task resolve doLast {
+    configurations.generic.files
+}
+artifactory {
+    contextUrl = "https://artifacts.corp.digitalreasoning.com:443/artifactory"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'managed-thirdparty-party'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+
+        }
+        defaults{
+            publishConfigs('published')
+            publishArtifacts = true
+        }
+    }
+}
+artifactoryPublish {
+    dependsOn assemble
+}
+
+
+
 /*
 integTestCluster {
     dependsOn buildZip
