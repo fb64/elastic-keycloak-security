@@ -2,8 +2,8 @@ buildscript {
     ext {
         pluginVersion = rootProject.properties['pluginVersion']
         esVersion = rootProject.properties['esVersion']
-        keycloakVersion = '4.5.0.Final'
-        jacksonVersion = '2.8.10'
+        keycloakVersion = '11.0.2'
+        jacksonVersion = '2.8.11'
     }
 
     repositories {
@@ -13,25 +13,22 @@ buildscript {
 
     dependencies {
         classpath "org.elasticsearch.gradle:build-tools:$esVersion"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
-
 apply plugin: 'idea'
 apply plugin: 'elasticsearch.esplugin'
 
 group 'org.elasticsearch.plugin'
 version "${pluginVersion}_es${esVersion}"
 
-
 ext{
     project.licenseFile = project.rootProject.file('LICENSE')
     project.noticeFile = project.rootProject.file('NOTICE')
+    thirdPartyAudit.enabled = false
 }
 
 dependencyLicenses.enabled = false
-
-thirdPartyAudit.excludes = ['org/jboss/modules/ConcurrentClassLoader',
-                            'org/jboss/modules/ConcurrentClassLoader$UnsafeHolder']
 
 esplugin {
     name 'keycloak-security'
@@ -70,8 +67,6 @@ dependencies {
     compile group: 'org.jboss.modules', name: 'jboss-modules', version: '1.1.0.GA'
 
     compileOnly group: 'javax.activation', name: 'activation', version: '1.1.1'
-    compileOnly group: 'log4j', name: 'log4j', version: '1.2.16'
-    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
     compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
 
 
@@ -86,6 +81,45 @@ integTestRunner {
     systemProperty 'tests.security.manager', 'false'
 }
 
+allprojects {
+    apply plugin: "com.jfrog.artifactory"
+}
+
+configurations {
+    published
+}
+
+def distro = file("build/distributions/keycloak-security-${pluginVersion}_es${esVersion}.zip")
+
+artifacts {
+    published file: distro, name: distro.getName(), type: 'zip'
+}
+task resolve doLast {
+    configurations.generic.files
+}
+artifactory {
+    contextUrl = "https://artifacts.corp.digitalreasoning.com:443/artifactory"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'managed-thirdparty-party'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+
+        }
+        defaults{
+            publishConfigs('published')
+            publishArtifacts = true
+        }
+    }
+}
+artifactoryPublish {
+    dependsOn assemble
+}
+
+
+
+/*
 integTestCluster {
     dependsOn buildZip
 
@@ -124,4 +158,4 @@ integTestCluster {
     }
 }
 
-check.dependsOn integTest
+check.dependsOn integTest */
