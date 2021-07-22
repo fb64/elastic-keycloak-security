@@ -2,6 +2,14 @@
 
 A Simple xpack security plugin to secure [Elasticsearch](https://www.elastic.co/fr/products/elasticsearch) with [Keycloak](https://www.keycloak.org/) 
 
+## Build the plugin
+```
+./gradlew publish
+```
+This will create the jar keycloak-security-11.0.2_es7.9.3.jar in the build/distributions folder.
+
+Upload the jar to your artifact repository to utilize.
+
 ## Installation 
 
 - Install plugin 

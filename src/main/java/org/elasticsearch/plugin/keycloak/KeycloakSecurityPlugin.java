@@ -15,17 +15,28 @@
 
 package org.elasticsearch.plugin.keycloak;
 
-import org.elasticsearch.plugin.keycloak.realm.BearerToken;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.settings.Setting;
+import org.elasticsearch.plugin.keycloak.realm.KeycloakRealm;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.xpack.core.security.authc.RealmSettings;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KeycloakSecurityPlugin extends Plugin implements ActionPlugin {
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
-    public Collection<String> getRestHeaders() {
-        return Collections.singletonList(BearerToken.BEARER_AUTH_HEADER);
+    public List<Setting<?>> getSettings() {
+        List<Setting<?>> list = new ArrayList<>(RealmSettings.getStandardSettings(KeycloakRealm.REALM_TYPE));
+        Setting.AffixSetting<?> keycloakConfig = RealmSettings.simpleString(KeycloakRealm.REALM_TYPE, "config",
+                Setting.Property.NodeScope, Setting.Property.Filtered);
+        list.add(keycloakConfig);
+
+        return list;
     }
+
 }
